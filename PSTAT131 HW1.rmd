@@ -1,0 +1,109 @@
+---
+title: "PSTAT 131 HW1"
+author: "William Long"
+date: "2022-10-02"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(ggplot2)
+library(corrplot)
+options(knitr.duplicate.label = "allow")
+```
+
+## Question 1
+
+Supervised learning: Machine learning approach that uses labeled outputs and thus has prior knowledge of what output values should look like, i.e., an answer key. A supervised learning model will attempt to find a relationship between the predictors and the response from the training data and then try to predict the response from new data. 
+
+Unsupervised learning: Unlike supervised learning, unsupervised learning does not utilize labeled data. An unsupervised learning model will attempt to categorize or group data according to the patterns inherent to the data itself. For example, an unsupervised learning model may be given images of cats and dogs. The model does not know what a cat or dog is, but it can still categorize those images based on patterns, such as grouping cat images together because they all have whiskers.
+
+
+## Question 2
+A regression model attemps to predict a continuous value from its predictors, but a classification model attempts to classify a data point as part of a particular group given its predictors. For example, a regression model may try to predict how many inches of snow will occur on a particular day and a classification model may try to predict if its a cloudy day or a clear day.
+
+## Question 3
+Regression ML metrics: Mean squared error and mean absolute error
+
+Classification ML metrics: Error rate and F1 score
+
+
+## Question 4
+Descriptive models: Model that is used to discover new information and relations about data. No variable to predict or estimate and as such is trained with unsupervised learning. Often used for clustering and categorization. 
+
+Inferential models: Model that is used to understand the data generation process, such as properties of a population or the influence of certain features on the response variable. Often involves hypothesis tests and deriving estimates.
+
+Predictive models: Type of model that uses previous historical data to identify trends or patterns to help predict future outcomes. For example, predicting future stock prices from the current stock market. 
+
+
+
+## Question 5
+A mechanistic predictive model uses theory to predict but an empirically-driven model uses real-world evidence and data to predict information. For example, a mechanistic model of a cannonball trajectory would use the laws of physics to calculate where that cannonball would land, given certain information such as initial velocity and height. An empirically-driven model would rely on the data from previous cannonball firings and try to predict where the new cannonball would land based on the trajectory of the previous ones. Mechanistic models rely on assumptions and prior knowledge, whereas empirically-driven models make very few assumptions, if any. They are similar in that theory and assumptions of mechanistic models were usually first derived from empirical testing and the best predictive models typically use some combination of both approaches.
+
+I would say a mechanistic model is easier to understand because it tends to be more agreeable with our current assumptions and prior knowledge. If a mechanistic model's predictions are accurate, it will confirm our current biases and make sense intuitively.
+
+The more reliance a model has on the mechanistic approach correlates with an increase in assumptions made about the data. This can lead to higher bias from erroneous assumptions, but more reliance on the empirically-driven approach will cause the model to be more sensitive to fluctuations in data, increasing variance. 
+
+
+
+
+
+## Question 6
+The first question is predictive because it wants to know what the voter will do in the future given their past voting information.
+
+The second question is inferential because it wants to know how much a certain feature(personal contact with candidate) would affect the response variable(likelihood to vote for candidate).
+
+
+## Exercise 1
+```{r histogram}
+ggplot(mpg, aes(x=hwy)) + geom_histogram(binwidth=0.5)  
+```
+
+The histogram of hwy seems to be right-skewed with most of the data clustering around the 10-30 highway mpg range. Interestingly, there seems to be a spike in count around the 15 mpg range. Could that possibly be related to the popularity of fuel-inefficient trucks?
+
+## Exercise 2
+```{r mpg}
+ggplot(mpg, aes(x=hwy, y=cty)) + geom_point()
+```
+
+hwy and cty seem very correlated which makes sense because they are both measures of mpg, just in different environments. The relationship is not 1:1 however, as it seems cty tends to be slightly lower than hwy. This is generally because city driving involves a lot of stop-and-go and turning which is not efficient for distance covered, while highway driving tends to be mostly uninterrupted straight line driving. 
+
+## Exercise 3
+```{r manufacturer}
+
+ggplot(mpg, aes(y= reorder(manufacturer, manufacturer, length))) + geom_bar()
+```
+
+Dodge produced the most cars and Lincoln produced the least.
+
+## Exercise 4
+```{r cyl}
+mpg$cyl <- as.factor(mpg$cyl) #Changing to factor variable for grouping
+ggplot(mpg, aes(x=cyl, y=hwy)) + geom_boxplot()
+```
+
+It seems that as the number of cylinders increases, mpg decreases.
+
+## Exercise 5
+```{r corrplot}
+#Changing cylinder back to numeric variable
+mpg$cyl <- as.numeric(mpg$cyl)
+#Dropping non-numeric variables
+df <- subset(mpg, select = -c(manufacturer, model, trans, drv, fl, class))
+
+m1 = cor(df)
+
+corrplot(m1, method = "number", type = "lower")
+```
+
+Engine displacement and number of cylinders are positively correlated but that's because number of cylinders is actually factored into the formula to calculate engine displacement. 
+
+Engine displacement is also negatively correlated with mileage, likely because a bigger engine is positively correlated with larger vehicles and more powerful engines, both of which are less efficient in terms of mileage.
+
+Similarly the number of cylinders is also negatively correlated with mileage because cyl is positively correlated with engine displacement, which makes sense as noted above.
+
+The overall trend for the whole correlation matrix seems to be that larger engines correlate with lower mileage.
